@@ -166,7 +166,10 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2
                 // connection's flow-control window.
                 _inputFlowControl.Abort();
 
-                CanReuse = !_keepAlive && _requestProcessingStatus == RequestProcessingStatus.ResponseCompleted;
+                // We only want to reuse a stream that has completely finished writing.
+                // This is to prevent the situation where Http2OutputProducer.ProcessDataWrites
+                // is still running in the background.
+                CanReuse = !_keepAlive && HasResponseCompleted;
 
                 Reset();
             }
