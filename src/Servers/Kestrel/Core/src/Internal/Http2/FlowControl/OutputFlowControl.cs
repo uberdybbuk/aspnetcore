@@ -10,12 +10,10 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2.FlowControl
     {
         private FlowControl _flow;
         private Queue<OutputFlowControlAwaitable> _awaitableQueue;
-        private readonly uint _initialWindowSize;
 
         public OutputFlowControl(uint initialWindowSize)
         {
             _flow = new FlowControl(initialWindowSize);
-            _initialWindowSize = initialWindowSize;
         }
 
         public int Available => _flow.Available;
@@ -39,9 +37,11 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2.FlowControl
             }
         }
 
-        public void Reset()
+        public void Reset(uint initialWindowSize)
         {
-            _flow = new FlowControl(_initialWindowSize);
+            // When output flow control is reused the client window size needs to be reset.
+            // The client might have changed the window size before the stream is reused.
+            _flow = new FlowControl(initialWindowSize);
             Debug.Assert((_awaitableQueue?.Count ?? 0) == 0, "Queue should have been emptied by the previous stream.");
         }
 

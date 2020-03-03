@@ -24,9 +24,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2.FlowControl
 
         public bool IsAborted => _connectionLevelFlowControl.IsAborted || _streamLevelFlowControl.IsAborted;
 
-        public void Reset()
+        public void Reset(uint initialWindowSize)
         {
-            _streamLevelFlowControl.Reset();
+            _streamLevelFlowControl.Reset(initialWindowSize);
             if (_currentConnectionLevelAwaitable != null)
             {
                 Debug.Assert(_currentConnectionLevelAwaitable.IsCompleted, "Should have been completed by the previous stream.");
